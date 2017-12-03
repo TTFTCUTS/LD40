@@ -3,13 +3,24 @@ import "package:GameLib2/GameLib2.dart";
 abstract class Tiles {
     static void init() {
 
-        new TileSet("arena", 64, 64)
-            ..fixedTile("test_0", 0, 0, 32)
-            ..fixedTile("test_1", 1, 0, 32)
-            ..fixedTile("test_2", 0, 1, 32)
-            ..fixedTile("test_3", 1, 1, 32);
+        new TileSet("arena", 512, 512)
 
-        new TileType(255, "test", <String>["0", "1", "2", "3"])..solid=true;
+            // base floor
+            ..fixedTile("base_0", 0, 0, 32)
+            ..fixedTile("base_1", 1, 0, 32)
+            ..fixedTile("base_2", 2, 0, 32)
+            ..fixedTile("base_3", 3, 0, 32)
+            ..fixedTile("base_4", 0, 1, 32)
+            ..fixedTile("base_5", 1, 1, 32)
+            ..fixedTile("base_6", 2, 1, 32)
+            ..fixedTile("base_7", 3, 1, 32)
+
+            // wall
+
+        ;
+
+        new TileType(20, "base", <String>["0", "1", "2", "3", "4", "5", "6", "7"])..solid=false;
+        new TileTypeConnected(255, "wall")..solid=true;
 
 
         new TileSet("projectiles", 128,128)

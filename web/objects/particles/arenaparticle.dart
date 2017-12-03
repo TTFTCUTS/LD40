@@ -4,7 +4,7 @@ import "package:GameLib2/three.dart" as THREE;
 import "../arenacollider.dart";
 import "../spriteobject.dart";
 
-class ArenaParticle extends SpriteObject with ArenaCollider {
+class ArenaParticle extends SpriteObject with ArenaCollider, Lifetime {
     @override
     int colwidth;
     @override
@@ -13,6 +13,7 @@ class ArenaParticle extends SpriteObject with ArenaCollider {
     ArenaParticle(num x, num y, int width, int height) : super(x, y, width, height) {
         this.colwidth = width ~/2;
         this.colheight = height ~/2;
+        this.size = ((height + width) * 0.25);
     }
 
     @override
