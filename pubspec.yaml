@@ -11,6 +11,7 @@ dependencies:
     git: git://github.com/TTFTCUTS/GameLib2.git
 
 dev_dependencies:
+  js: ^0.6.0
   browser: ^0.10.0
   dart_to_js_script_rewriter: ^1.0.1
 
