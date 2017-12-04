@@ -1,9 +1,13 @@
-import "dart:math";
-
 import "package:GameLib2/GameLib2.dart";
+
+export "autorifle.dart";
+export "enemyguns.dart";
+export "rocketlauncher.dart";
 
 class Weapon {
     GameObject2D holder;
+
+    String sprite = "shotgun";
 
     bool trigger = false;
 
@@ -16,7 +20,7 @@ class Weapon {
     double reloadTime = 3.0;
     double reload = 0.0;
 
-    Weapon(GameObject2D this.holder) {}
+    Weapon([GameObject2D this.holder]) {}
 
     void update(num dt) {
         if (cooldown > 0.0) {

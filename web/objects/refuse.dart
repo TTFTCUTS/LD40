@@ -5,6 +5,7 @@ import "package:GameLib2/three.dart" as THREE;
 
 import "actor.dart";
 import "arenamover.dart";
+import 'environmentobject.dart';
 import "particles/arenaparticle.dart";
 import "projectile.dart";
 
@@ -14,6 +15,13 @@ class Refuse extends Actor {
     Refuse(num x, num y, int width, int height, double size, double angle) : super(x, y, width, height, (size*2).ceil(), (size*2).ceil()) {
         this.size = size;
         this.angle = angle;
+        this.takesContactDamage = false;
+    }
+
+    @override
+    bool testCollision(Collider other) {
+        if (other is Refuse || other is EnvironmentObject) { return false; }
+        return super.testCollision(other);
     }
 
     void cleanUp() {
@@ -26,6 +34,7 @@ class Refuse extends Actor {
         if (this.model != null) {
             this.model.position.z = -2.5;
         }
+        this.rot.setFromEuler(new THREE.Euler(0,0, this.angle));
     }
 
     @override
@@ -38,7 +47,7 @@ class Rubble extends Refuse {
     }
     @override
     bool testCollision(Collider other) {
-        if (other is Refuse) { return false; }
+        if (other is Refuse || other is EnvironmentObject) { return false; }
         return super.testCollision(other);
     }
 

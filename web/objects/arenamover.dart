@@ -1,9 +1,5 @@
-import "dart:math";
-
-import "package:GameLib2/GameLib2.dart";
 import "package:GameLib2/three.dart" as THREE;
 
-import "../mainlogic.dart";
 import "actor.dart";
 import "arenacollider.dart";
 

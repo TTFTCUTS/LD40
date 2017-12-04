@@ -12,13 +12,15 @@ import "weapon.dart";
 
 class AutoRifle extends Weapon {
     Random rand = new Random();
-    double spread = PI / 32.0;
+    double spread = PI / 24.0;
 
-    AutoRifle(GameObject2D holder) : super(holder) {
-        this.fireRate = 10.0;
-        this.maxAmmo = 24;
-        this.ammo = 24;
-        this.reloadTime = 2.0;
+    AutoRifle([GameObject2D holder]) : super(holder) {
+        this.fireRate = 20.0;
+        this.maxAmmo = 100;
+        this.ammo = 100;
+        this.reloadTime = 3.0;
+
+        this.sprite = "minigun";
     }
 
     @override
@@ -40,18 +42,19 @@ class AutoRifleBullet extends Projectile {
 
     @override
     void impactWall(WallObject other) {
-        other.hurt(rand.nextInt(2) + 1);
+        other.hurt(1);
         this.destroy();
     }
 
     @override
     void impactEnvironment(EnvironmentObject other) {
-        other.hurt(rand.nextInt(2) + 1);
+        other.hurt(1);
         this.destroy();
     }
 
     @override
     void impactEnemy(Enemy other) {
+        other.hurt(1);
         this.destroy();
     }
 }

@@ -1,9 +1,9 @@
-import "dart:html";
 import "dart:math";
 
 import "package:GameLib2/GameLib2.dart";
 import "package:GameLib2/three.dart" as THREE;
 
+import '../main.dart';
 import "actor.dart";
 import "refuse.dart";
 
@@ -25,14 +25,13 @@ class WallObject extends Actor {
             this.tilekey = tileType.getTileNameForLocation(grid, cellx, celly, rand, false);
         }
 
-        Loader.getResource("assets/tiles/arena.png").then((ImageElement img){
-            this.texture = new THREE.Texture(img)..flipY=false..needsUpdate=true;
-        });
+        getTexture("assets/tiles/arena.png").then((THREE.Texture t) { this.texture = t; });
         this.size = 32.0;
 
         this.setMaxHealth(hp);
 
         this.hurtTint = _hurtTint;
+        this.takesContactDamage = false;
     }
 
     @override
