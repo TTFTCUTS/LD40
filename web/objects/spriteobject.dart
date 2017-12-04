@@ -75,16 +75,16 @@ class SpriteObject extends MoverObject2D {
 			}
 		}
 
-		this.uniforms["fLight"].value = 1.0;
-		this.uniforms["tDiffuse"].value = this.texture;
+		//this.uniforms["fLight"].value = 1.0;
+		//this.uniforms["tDiffuse"].value = this.texture;
 		(this.uniforms["vSprite"].value as THREE.Vector4).set(x, y, z, w);
 		(this.uniforms["vTint"].value as THREE.Vector3).set(this.tint.x, this.tint.y, this.tint.z);
 
-		for (String name in this.uniforms.keys) {
+		/*for (String name in this.uniforms.keys) {
 			THREE.setUniform(m, name, this.uniforms[name]);
-		}
+		}*/
 
-		m.needsUpdate = true;
+		//m.needsUpdate = true;
 	}
 	
 	String getFrame() {

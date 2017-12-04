@@ -1,24 +1,33 @@
-import "dart:html";
 import "dart:math";
 
 import "package:GameLib2/GameLib2.dart";
 import "package:GameLib2/three.dart" as THREE;
 
+import '../main.dart';
 import "../mainlogic.dart";
-import "../weapons/autorifle.dart";
+import '../mixins/bleeder.dart';
+import '../mixins/delegateparts.dart';
 import "../weapons/weapon.dart";
 import "arenamover.dart";
 
-class Player extends ArenaMover {
+class Player extends ArenaMover with DelegateParts, Bleeder {
     Weapon weapon;
 
     Player(num x, num y) : super(x,y, 32, 32, 16,16) {
-        this.tileset = TileSet.tilesets["arena"];
-        Loader.getResource("assets/tiles/arena.png").then((ImageElement img){
-            this.texture = new THREE.Texture(img)..flipY=false..needsUpdate=true;
-        });
+        this.takesContactDamage = true;
+        this.setMaxHealth(100);
 
-        this.weapon = new AutoRifle(this);
+        this.tileset = TileSet.tilesets["dude"];
+        getTexture("assets/sprites/dude.png").then((THREE.Texture t) { this.texture = t; });
+
+        this.weapon = new AutoRifle(this); // new RocketLauncher(this); //
+    }
+
+    @override
+    void register(GameLogic game) {
+        super.register(game);
+        this.createDelegates();
+        (game as MainLogic).player = this;
     }
 
     @override
@@ -59,6 +68,7 @@ class Player extends ArenaMover {
         }
 
         super.update(dt);
+        this.updateBlood(dt);
 
         if (weapon != null) {
             weapon.update(dt);
@@ -85,6 +95,28 @@ class Player extends ArenaMover {
 
     @override
     String getFrame() {
-        return "test_0";
+        return "body";
+    }
+
+    @override
+    void onDeath() {
+        super.onDeath();
+        this.deathBlood();
+    }
+
+    @override
+    void destroy() {
+        this.destroyDelegates();
+        super.destroy();
+    }
+
+    @override
+    void createDelegates() {
+        new PartDelegate(this, 6, -10, 0.0, 24, 24, "dude", this.weapon.sprite, "assets/sprites/dude.png")..register(game);
+        new PartDelegate(this, 0, -7.5, 0.0, 16, 16, "dude", "head", "assets/sprites/dude.png")
+            ..baseTint.x = 0.2
+            ..baseTint.y = 0.2
+            ..baseTint.z = 0.8
+            ..register(game);
     }
 }

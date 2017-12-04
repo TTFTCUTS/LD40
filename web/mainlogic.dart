@@ -4,10 +4,9 @@ import "dart:html";
 import "package:GameLib2/GameLib2.dart";
 import "package:GameLib2/three.dart" as THREE;
 
-import "objects/environmentobject.dart";
+import 'main.dart';
 import "objects/mapobject.dart";
 import "objects/player.dart";
-import "objects/wallobject.dart";
 
 class MainLogic extends GameLogic {
     Map<int, bool> keys = <int,bool>{};
@@ -27,12 +26,12 @@ class MainLogic extends GameLogic {
     THREE.Mesh worldModelFore;
     THREE.Mesh worldModelBack;
 
-    //Player player;
+    Player player;
 
     MainLogic(DivElement container, int width, int height) : super(container, width, height, width*2.0, height*5.0, 64.0, 64.0) {
         this.width = width;
         this.height = height;
-        this.simstep = 1/60.0;
+        this.simstep = 1/30.0;
 
         this.mousepos = new Point<num>(width~/2, height~/2);
 
@@ -112,19 +111,6 @@ class MainLogic extends GameLogic {
     Future<Null> start() async {
         await loadLevel();
 
-        Player p = new Player(width*0.5, height * (4.5))..register(this);
-
-        new WallObject(1,102, TileType.typesByName["test"], this.grid)..register(this);
-
-        new WallObject(5,106, TileType.typesByName["test"], this.grid)..register(this);
-        new WallObject(6,106, TileType.typesByName["test"], this.grid)..register(this);
-        new WallObject(9,106, TileType.typesByName["test"], this.grid)..register(this);
-        new WallObject(9,107, TileType.typesByName["test"], this.grid)..register(this);
-
-        new WallObject(8,110, TileType.typesByName["test"], this.grid)..register(this);
-
-        new Car(400, 3800, 0.0)..register(this);
-
         new Future<Null>.delayed(new Duration(seconds:1), () {
             startGameLoop();
             this.allowControl = true;
@@ -173,13 +159,15 @@ class MainLogic extends GameLogic {
             this.render.scene.remove(worldModelBack);
         }
 
-        THREE.Texture arenaTex = new THREE.Texture(await Loader.getResource("assets/tiles/arena.png"))..flipY=false..needsUpdate=true;
+        THREE.Texture arenaTex = await getTexture("assets/tiles/arena.png"); //new THREE.Texture(await Loader.getResource("assets/tiles/arena.png"))..flipY=false..needsUpdate=true;
 
-        this.worldModelBack = await this.grid.buildGeometry("arena", true, arenaTex, "assets/shader/basic.vert", "assets/shader/sprite.frag");
+        this.worldModelBack = await this.grid.buildGeometry("arena", true, arenaTex, "assets/shader/basic.vert", "assets/shader/sprite.frag", 1.0);
         this.render.scene.add(this.worldModelBack);
 
         this.worldModelFore = await this.grid.buildGeometry("arena", false, arenaTex, "assets/shader/basic.vert", "assets/shader/sprite.frag");
         this.render.scene.add(this.worldModelFore);
+
+        this.worldModelFore.material.transparent = true;
 
         /*if (this.player != null) {
             this.cameraTarget.setValues(player.pos.x, player.pos.y);
