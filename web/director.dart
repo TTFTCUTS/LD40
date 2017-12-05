@@ -172,7 +172,7 @@ class Director {
         this.phase = 6;
 
         this.music.stop(0);
-        this.music = await Audio.play("janitor", "music")..loop=true;
+        this.music = await Audio.play("Janitor", "music")..loop=true;
 
         this.janitorRoom.activate();
 

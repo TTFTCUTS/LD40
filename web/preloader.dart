@@ -33,6 +33,22 @@ abstract class Preloader {
         Loader.getResource(Audio.INSTANCE.processSoundName("BULLETIMPACTMETAL")),
 
         Loader.getResource(Audio.INSTANCE.processSoundName("instructions")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("cuddlytoy")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("elbowgrease")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("fantastic")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("goandcleanup")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("lovely")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("scrubit")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("skegness")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("thatshowedim")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("toaster")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("whatamess")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("30secondsremain")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("oneminuteremains")),
+
+        Loader.getResource(Audio.INSTANCE.processSoundName("Janitor")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("45secSynthSax")),
+        Loader.getResource(Audio.INSTANCE.processSoundName("combattheme")),
     ]);
 
     static Future<List<dynamic>> initTextures() => Future.wait(<Future<dynamic>>[
