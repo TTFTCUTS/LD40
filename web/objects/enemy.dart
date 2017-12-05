@@ -8,10 +8,11 @@ import '../mainlogic.dart';
 import '../mixins/bleeder.dart';
 import '../mixins/contactdamage.dart';
 import '../mixins/delegateparts.dart';
+import '../room.dart';
 import '../weapons/weapon.dart';
 import "arenamover.dart";
 
-class Enemy extends ArenaMover with DelegateParts, ContactDamage, Bleeder {
+class Enemy extends ArenaMover with DelegateParts, ContactDamage, Bleeder, RoomObject {
     static double LOS_STEP = 28.0;
     static Random rand = new Random();
 
@@ -36,9 +37,11 @@ class Enemy extends ArenaMover with DelegateParts, ContactDamage, Bleeder {
 
     double accuracy = 0.2;
 
+    int score = 100;
+
     bool mobile = true;
 
-    Enemy(num x, num y, int size, int health, double r, double g, double b, double this.hatr, double this.hatg, double this.hatb, Weapon this.weapon) : super(x, y, size, size, size~/2, size~/2) {
+    Enemy(num x, num y, int size, int health, double r, double g, double b, double this.hatr, double this.hatg, double this.hatb, Weapon this.weapon) : super(x, y, size, size, (size*0.75).floor(), (size*0.75).floor()) {
 
         this.setMaxHealth(health);
         this.tint..x=r..y=g..z=b;
@@ -56,7 +59,7 @@ class Enemy extends ArenaMover with DelegateParts, ContactDamage, Bleeder {
 
     @override
     void createDelegates() {
-        double scale = this.colwidth / 16;
+        double scale = (this.colwidth / 16) * (2/3);
         new PartDelegate(this, 6 * scale, -10 * scale, 0.0, (24 * scale).round(), (24 * scale).round(), "dude", this.weapon.sprite, "assets/sprites/dude.png")..register(game);
         new PartDelegate(this, 0, -7.5 * scale, 0.0, (16 * scale).round(), (16 * scale).round(), "dude", "head", "assets/sprites/dude.png")..register(game)
         ..baseTint.x=hatr..baseTint.y=hatg..baseTint.z=hatb;
@@ -66,6 +69,7 @@ class Enemy extends ArenaMover with DelegateParts, ContactDamage, Bleeder {
     void register(GameLogic game) {
         super.register(game);
         this.createDelegates();
+        this.addToRoom();
     }
 
     @override
@@ -81,6 +85,7 @@ class Enemy extends ArenaMover with DelegateParts, ContactDamage, Bleeder {
 
     @override
     void update(num dt) {
+        if(this.paused) { return; }
         super.update(dt);
         this.weapon.update(dt);
         this.updateBlood(dt);
@@ -105,6 +110,8 @@ class Enemy extends ArenaMover with DelegateParts, ContactDamage, Bleeder {
     void onDeath() {
         //splatter big blood, splat explosion?
         this.deathBlood();
+        game.director.score += this.score;
+        super.onDeath();
     }
 
     bool checkForPlayer() {
@@ -207,6 +214,8 @@ class Sarge extends Enemy {
         this.accuracy = 0.1;
         this.hesitation = 0.2;
         this.viewrange = 12.0;
+
+        this.score = 250;
     }
 }
 
@@ -217,5 +226,27 @@ class Fatty extends Enemy {
         this.accuracy = 0.1;
         this.hesitation = 0.1;
         this.viewrange = 23.0;
+
+        this.score = 2500;
+    }
+
+    @override
+    void onDeath() {
+        super.onDeath();
+        if (Enemy.rand.nextDouble() <= 0.5) {
+            (this.game as MainLogic).director.announcer.play("thatshowedim", "HOST: That showed 'im!");
+        }
+    }
+}
+
+class Commando extends Enemy {
+    Commando(num x, num y) : super(x, y, 40, 40, 0.1, 0.1, 0.1, 0.4, 0.2, 0.2, new CommandoGun()) {
+        this.turnspeed = 4.0;
+        this.wandertime = 0.6;
+        this.accuracy = 0.1;
+        this.hesitation = 0.2;
+        this.viewrange = 10.0;
+
+        this.score = 250;
     }
 }

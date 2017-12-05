@@ -18,7 +18,7 @@ class AutoRifle extends Weapon {
         this.fireRate = 20.0;
         this.maxAmmo = 100;
         this.ammo = 100;
-        this.reloadTime = 3.0;
+        this.reloadTime = 1.5;
 
         this.sprite = "minigun";
     }
@@ -32,7 +32,7 @@ class AutoRifle extends Weapon {
         new AutoRifleBullet(origin.x, origin.y)..register(holder.game)
             ..move(holder.getHeading().normalize().rotateAround(new THREE.Vector2.zero(), (rand.nextDouble() - 0.5) * spread), 750.0);
 
-        Audio.play("boydhurt1", "effects", pitchVar: 0.075);
+        Audio.play("GUNFIRE", "automatics", pitchVar: 0.075);
     }
 }
 
@@ -42,19 +42,29 @@ class AutoRifleBullet extends Projectile {
 
     @override
     void impactWall(WallObject other) {
-        other.hurt(1);
+        other.hurt(3);
         this.destroy();
+        this.wallImpactSound();
+    }
+
+    @override
+    void wallImpact(THREE.Vector3 dir, bool left, bool right, bool top, bool bot, [WallObject object = null]) {
+        super.wallImpact(dir, left, right, top, bot, object);
+        this.wallImpactSound();
     }
 
     @override
     void impactEnvironment(EnvironmentObject other) {
-        other.hurt(1);
+        other.hurt(3);
         this.destroy();
+        if (other is Barrels || other is Car) {
+            this.metalImpactSound();
+        }
     }
 
     @override
     void impactEnemy(Enemy other) {
-        other.hurt(1);
+        other.hurt(3);
         this.destroy();
     }
 }

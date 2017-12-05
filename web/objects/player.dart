@@ -13,21 +13,28 @@ import "arenamover.dart";
 class Player extends ArenaMover with DelegateParts, Bleeder {
     Weapon weapon;
 
-    Player(num x, num y) : super(x,y, 32, 32, 16,16) {
+    bool janitor;
+    PartDelegate weapondelegate;
+
+    Player(num x, num y, [bool this.janitor = false]) : super(x,y, 32, 32, 16,16) {
         this.takesContactDamage = true;
-        this.setMaxHealth(100);
+        this.setMaxHealth(50);
 
         this.tileset = TileSet.tilesets["dude"];
         getTexture("assets/sprites/dude.png").then((THREE.Texture t) { this.texture = t; });
 
-        this.weapon = new AutoRifle(this); // new RocketLauncher(this); //
+        this.weapon = this.janitor ? new Mop(this) : new AutoRifle(this); // new RocketLauncher(this); //
     }
 
     @override
     void register(GameLogic game) {
         super.register(game);
         this.createDelegates();
-        (game as MainLogic).player = this;
+        if (this.janitor) {
+            (game as MainLogic).janitor = this;
+        } else {
+            (game as MainLogic).player = this;
+        }
     }
 
     @override
@@ -37,7 +44,7 @@ class Player extends ArenaMover with DelegateParts, Bleeder {
         int dx = 0;
         int dy = 0;
 
-        if (game.allowControl) {
+        if (game.allowControl && game.player == this) {
             if (game.getKey(65) || game.getKey(37)) {
                 dx -= 1;
             }
@@ -86,11 +93,13 @@ class Player extends ArenaMover with DelegateParts, Bleeder {
         MainLogic game = (this.game as MainLogic);
         super.updateMovement(dt);
 
-        THREE.Vector2 lookpoint = game.screenToWorld(new THREE.Vector2(game.mousepos.x, game.mousepos.y));
-        THREE.Vector2 diff = lookpoint.sub(THREE.v3_xy(this.pos));
+        if (game.allowControl && game.player == this) {
+            THREE.Vector2 lookpoint = game.screenToWorld(new THREE.Vector2(game.mousepos.x, game.mousepos.y));
+            THREE.Vector2 diff = lookpoint.sub(THREE.v3_xy(this.pos));
 
-        this.setHeadingVec(diff);
-        this.angle += PI * 0.5;
+            this.setHeadingVec(diff);
+            this.angle += PI * 0.5;
+        }
     }
 
     @override
@@ -102,6 +111,7 @@ class Player extends ArenaMover with DelegateParts, Bleeder {
     void onDeath() {
         super.onDeath();
         this.deathBlood();
+        game.director.deathInShooty();
     }
 
     @override
@@ -112,11 +122,17 @@ class Player extends ArenaMover with DelegateParts, Bleeder {
 
     @override
     void createDelegates() {
-        new PartDelegate(this, 6, -10, 0.0, 24, 24, "dude", this.weapon.sprite, "assets/sprites/dude.png")..register(game);
+        this.weapondelegate = new PartDelegate(this, 6, -10, 0.0, 24, 24, "dude", this.weapon.sprite, "assets/sprites/dude.png")..register(game);
         new PartDelegate(this, 0, -7.5, 0.0, 16, 16, "dude", "head", "assets/sprites/dude.png")
             ..baseTint.x = 0.2
             ..baseTint.y = 0.2
             ..baseTint.z = 0.8
             ..register(game);
+
+        if (this.janitor) {
+            this.weapondelegate.setScale(new THREE.Vector3.all(2));
+            this.weapondelegate.offset.x = 3.0;
+            this.weapondelegate.offset.y = -22.0;
+        }
     }
 }

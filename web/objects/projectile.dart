@@ -37,6 +37,14 @@ class Projectile extends ArenaMover with Lifetime {
     }
 
     @override
+    void updateGraphics(num dt) {
+        super.updateGraphics(dt);
+        if (this.model != null) {
+            this.model.position.z = 3;
+        }
+    }
+
+    @override
     String getFrame() => tilekey;
 
     @override
@@ -73,4 +81,12 @@ class Projectile extends ArenaMover with Lifetime {
     void impactEnemy(Enemy other) {}
     void impactEnvironment(EnvironmentObject other) {}
     void impactWall(WallObject other) {}
+
+    void wallImpactSound() {
+        Audio.playRandom(<String>["BULLETIMPACTONE", "BULLETIMPACTTWO", "BULLETIMPACTTHREE"], "riccochet", pitchVar: 0.1);
+    }
+
+    void metalImpactSound() {
+        Audio.play("BULLETIMPACTMETAL", "riccochet", pitchVar: 0.2);
+    }
 }

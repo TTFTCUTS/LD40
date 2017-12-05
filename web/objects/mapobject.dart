@@ -26,14 +26,22 @@ class MapObject extends Actor {
 			new WallObject(x, y, TileType.typesByName["breakwall"], game.grid)..register(game);
 		} else if (id == 120) {
 			new Car(tx, ty, rand.nextDouble() * PI * 2)..register(game);
+		} else if (id == 130) {
+			new Boat(tx, ty, rand.nextDouble() * PI * 2)..register(game);
+		} else if (id == 140) {
+			new Bear(tx, ty)..register(game);
 		} else if (id == 200) {
 			new Grunt(tx, ty)..register(game);
 		} else if (id == 205) {
 			new Sarge(tx, ty)..register(game);
 		} else if (id == 210) {
 			new Fatty(tx, ty)..register(game);
+		} else if (id == 215) {
+			new Commando(tx, ty)..register(game);
 		} else if (id == 240) {
 			new Player(tx, ty)..register(game);
+		} else if (id == 250) {
+			new Player(tx, ty, true)..register(game);
 		}
 		
 		return null;

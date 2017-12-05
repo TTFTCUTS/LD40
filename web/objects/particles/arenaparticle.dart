@@ -93,7 +93,7 @@ class SmokeTrailer extends ProjectileSheetParticle with Trail {
     SmokeTrailer(num x, num y, double lifetime, double lifevariance) : super(x, y, 16, 16, lifetime, lifevariance, 1, "ball_small");
 
     @override
-    double getTrailDelay() => 0.01;
+    double getTrailDelay() => 0.04;
 
     @override
     void update(num dt) {

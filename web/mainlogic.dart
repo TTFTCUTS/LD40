@@ -1,12 +1,15 @@
 import "dart:async";
 import "dart:html";
+import "dart:math";
 
 import "package:GameLib2/GameLib2.dart";
 import "package:GameLib2/three.dart" as THREE;
 
+import 'director.dart';
 import 'main.dart';
 import "objects/mapobject.dart";
 import "objects/player.dart";
+import 'room.dart';
 
 class MainLogic extends GameLogic {
     Map<int, bool> keys = <int,bool>{};
@@ -27,6 +30,8 @@ class MainLogic extends GameLogic {
     THREE.Mesh worldModelBack;
 
     Player player;
+    Player janitor;
+    Director director;
 
     MainLogic(DivElement container, int width, int height) : super(container, width, height, width*2.0, height*5.0, 64.0, 64.0) {
         this.width = width;
@@ -37,15 +42,49 @@ class MainLogic extends GameLogic {
 
         this.resetRenderer();
 
-        this.start();
+        //this.start();
     }
 
     @override
     void logicUpdate(num dt) {
         if (!paused) {
+            for (GameObject o in objects) {
+                if (o is RoomObject && o.destroyed) {
+                    (o as RoomObject).removeFromRoom();
+                }
+            }
+
             super.logicUpdate(dt);
+            director.update(dt);
         }
-        //this.updateUI();
+        this.updateUI(dt);
+        
+        //this.debugCommands();
+    }
+
+    @override
+    void update(num dt) {
+        super.update(dt);
+        if (this.director != null) {
+            this.director.announcer.update(dt);
+        }
+    }
+    
+    void debugCommands() {
+        if (this.getKey(103)) {
+            keys[103] = false;
+            this.director.phaserooms[director.phase].removeEnemies();
+        }
+
+        if (this.getKey(104)) {
+            keys[104] = false;
+            this.director.timer = max(0.0,this.director.timer - 30.0);
+        }
+
+        if (this.getKey(105)) {
+            keys[105] = false;
+            print(this.director.tallyFilth());
+        }
     }
 
     void togglePause() {
@@ -109,9 +148,33 @@ class MainLogic extends GameLogic {
     }
 
     Future<Null> start() async {
+        this.director = new Director(this);
         await loadLevel();
+        this.director.levelsetup();
 
-        new Future<Null>.delayed(new Duration(seconds:1), () {
+        DivElement countdown = querySelector("#countdown");
+
+        Audio.play("instructions", "voice", subtitle: "HOST: Eliminate the opponents, and smash as many prizes as you can. Get out there!");
+
+        int count = 5;
+        countdown.text = count.toString();
+
+        for (int i=1; i<5; i++) {
+            new Future<Null>.delayed(new Duration(seconds: i), () {
+                countdown.text = (count-i).toString();
+            });
+        }
+
+        new Future<Null>.delayed(new Duration(seconds: count), () {
+            countdown.text = "Refuse!";
+        });
+
+        new Future<Null>.delayed(new Duration(seconds: 2), () {
+            director.startOfShooty();
+        });
+
+        new Future<Null>.delayed(new Duration(seconds:count+1), () {
+            countdown.style.display = "none";
             startGameLoop();
             this.allowControl = true;
         });
@@ -194,5 +257,26 @@ class MainLogic extends GameLogic {
 
     void mouseUp(MouseEvent e) {
         buttons[e.button] = false;
+    }
+
+    DivElement timeElement = querySelector("#timer");
+    DivElement scoreElement = querySelector("#score");
+    DivElement filthElement = querySelector("#filth");
+    DivElement filthBox = querySelector("#filthbox");
+    void updateUI(num dt) {
+        if (!this.paused) {
+            double time = director.timer;
+            double seconds = time % 60.0;
+            double minutes = (time - seconds) / 60.0;
+
+            String timeString = "${"${minutes.floor()}".padLeft(1, "0")}:${"${seconds.floor()}".padLeft(2, "0")}";
+
+            timeElement.text = timeString;
+            scoreElement.text = director.score.toString();
+
+            if (this.director.phase >= 6) {
+                filthElement.text = "${(this.director.filthfraction * 100.0).floor()}%";
+            }
+        }
     }
 }

@@ -8,6 +8,8 @@ import "../mixins/health.dart";
 import "spriteobject.dart";
 
 class Actor extends SpriteObject with Collider, Health {
+	bool paused = false;
+
 	int colwidth;
 	int colheight;
 	
@@ -33,16 +35,12 @@ class Actor extends SpriteObject with Collider, Health {
 
 	@override
 	void update(num dt) {
+		if (this.paused) { return; }
 		this.age += dt;
 		super.update(dt);
 		this.hurttime = max(0.0, this.hurttime - dt);
 		this.updateCollider(dt);
 	}
-	
-	/*void destroy() {
-		this.destroyCollider();
-		super.destroy();
-	}*/
 
 	@override
 	THREE.Box3 getBounds() {

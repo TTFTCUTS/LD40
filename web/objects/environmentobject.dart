@@ -1,19 +1,23 @@
+import '../mainlogic.dart';
 import "dart:math";
 
 import "package:GameLib2/GameLib2.dart";
 import "package:GameLib2/three.dart" as THREE;
 
 import '../main.dart';
+import '../room.dart';
 import '../weapons/weapon.dart';
 import "actor.dart";
 import "arenamover.dart";
 import "particles/arenaparticle.dart";
 import "refuse.dart";
 
-abstract class EnvironmentObject extends Actor {
+abstract class EnvironmentObject extends Actor with RoomObject {
     static Random rand = new Random();
     String tilekey = null;
     static THREE.Vector3 _hurtTint = new THREE.Vector3(0.75, 0.75, 0.75);
+
+    int score = 0;
 
     EnvironmentObject(num x, num y, int width, int height, double size, int hp, double angle) : super(x, y, width, height, (size*2).ceil(), (size*2).ceil()) {
         this.setMaxHealth(hp);
@@ -25,8 +29,15 @@ abstract class EnvironmentObject extends Actor {
     Refuse createRefuse();
 
     @override
+    void register(GameLogic game) {
+        super.register(game);
+        this.addToRoom();
+    }
+
+    @override
     void onDeath() {
         this.createRefuse()..register(game)..tilekey = this.tilekey..angle = this.angle;
+        game.director.score += score;
     }
 
     @override
@@ -64,11 +75,12 @@ abstract class EnvironmentRefuse extends Refuse {
 
     }
 
-    EnvironmentObject createEnvObject();
+    EnvironmentObject createEnvObject() { return null; }
 
     @override
     void cleanUp() {
-        this.createEnvObject()..register(game)..tilekey = this.tilekey..angle = this.angle;
+        EnvironmentObject e = this.createEnvObject();
+        if (e != null) { e..register(game)..tilekey = this.tilekey..angle = this.angle; }
         this.destroy();
     }
 
@@ -81,11 +93,12 @@ abstract class EnvironmentRubble extends Rubble {
 
     }
 
-    EnvironmentObject createEnvObject();
+    EnvironmentObject createEnvObject() { return null; }
 
     @override
     void cleanUp() {
-        this.createEnvObject()..register(game)..tilekey = this.tilekey..angle = this.angle;
+        EnvironmentObject e = this.createEnvObject();
+        if (e != null) { e..register(game)..tilekey = this.tilekey..angle = this.angle; }
         this.destroy();
     }
 }
@@ -100,10 +113,13 @@ class Barrels extends EnvironmentObject {
         getTexture("assets/sprites/objects.png").then((THREE.Texture t) { this.texture = t; });
 
         this.tilekey = "barrel";
+
+        score = 50;
     }
 
     @override
     void update(num dt) {
+        if(this.paused) { return; }
         if (this.health < this.maxhealth) {
             double percent = 1.0 - (this.health / this.maxhealth);
             if (percent > 0.25) {
@@ -140,11 +156,16 @@ class Barrels extends EnvironmentObject {
 class BarrelsRefuse extends EnvironmentRefuse {
     BarrelsRefuse(num x, num y, double angle) : super(x, y, 32,32, 16.0, angle){
         this.tileset = TileSet.tilesets["objects"];
-        getTexture("assets/sprites/objects.png").then((THREE.Texture t) { this.texture = t; });;
+        getTexture("assets/sprites/objects.png").then((THREE.Texture t) { this.texture = t; });
+
+        this.setMaxHealth(3);
+        this.filth = 5.0;
     }
 
-    @override
-    EnvironmentObject createEnvObject() => new Barrels(this.pos.x, this.pos.y, this.angle);
+    /*@override
+    EnvironmentObject createEnvObject() {
+        //return new Barrels(this.pos.x, this.pos.y, this.angle);
+    }*/
 }
 
 // car
@@ -155,6 +176,8 @@ class Car extends EnvironmentObject {
         getTexture("assets/sprites/objects.png").then((THREE.Texture t) { this.texture = t; });
 
         this.tilekey = "car";
+
+        score = 3000;
     }
 
     @override
@@ -162,16 +185,48 @@ class Car extends EnvironmentObject {
         new RocketExplosion(this.pos.x, this.pos.y, true, 80.0, 100.0)..register(game);
         return new CarRefuse(this.pos.x, this.pos.y, this.angle);
     }
+
+    void callout() {
+        if(EnvironmentObject.rand.nextDouble() < 0.15) {
+            game.director.announcer.play("toaster", "HOST: You won a toaster!");
+        } else if (EnvironmentObject.rand.nextDouble() < 0.3) {
+            game.director.announcer.play("lovely", "HOST: Lovely!");
+        }
+    }
 }
 
 class CarRefuse extends EnvironmentRubble {
     CarRefuse(num x, num y, double angle) : super(x,y, 96,48, 48.0, angle){
         this.tileset = TileSet.tilesets["objects"];
         getTexture("assets/sprites/objects.png").then((THREE.Texture t) { this.texture = t; });
+
+        this.setMaxHealth(60);
+        this.filth = 30.0;
     }
 
     @override
     EnvironmentObject createEnvObject() => new Car(this.pos.x, this.pos.y, this.angle);
+}
+
+class Boat extends Car {
+    Boat(num x, num y, double angle) : super(x,y,angle) {
+        this.tilekey = "boat";
+
+        score = 5000;
+    }
+
+    @override
+    EnvironmentRubble createRefuse() {
+        new RocketExplosion(this.pos.x, this.pos.y, true, 80.0, 100.0)..register(game);
+        return new BoatRefuse(this.pos.x, this.pos.y, this.angle);
+    }
+}
+
+class BoatRefuse extends CarRefuse {
+    BoatRefuse(num x, num y, double angle) : super(x,y,angle);
+
+    @override
+    EnvironmentObject createEnvObject() => new Boat(this.pos.x, this.pos.y, this.angle);
 }
 
 class Blood extends Refuse {
@@ -184,8 +239,67 @@ class Blood extends Refuse {
 
         bool big = bloodamount > 4;
         this.tilekey = "blood_${big ? "big" : "small"}_${EnvironmentObject.rand.nextInt(big ? 7 : 4)+1}";
+
+        this.setMaxHealth(bloodamount);
+        this.filth = bloodamount.toDouble() * 2.0;
     }
 
     @override
     String getFrame() => tilekey;
+}
+
+class Bear extends EnvironmentObject {
+    Bear(num x, num y) : super(x, y, 256, 256, 256.0, 250, 0.0) {
+        this.tileset = TileSet.tilesets["bear"];
+        getTexture("assets/sprites/bear.png").then((THREE.Texture t) { this.texture = t; });
+
+        this.colheight = 200;
+        this.colwidth = 200;
+        this.size = 200.0;
+
+        this.score = 20000;
+        this.pos.z = 5.5;
+    }
+
+    @override
+    Refuse createRefuse() {
+        return new BearRefuse(this.pos.x, this.pos.y)..register(game);
+    }
+
+    @override
+    String getFrame() {
+        if (this.health > (this.maxhealth * 0.5)) {
+            return "bear_1";
+        }
+        return "bear_2";
+    }
+
+    @override
+    void onDeath() {
+        super.onDeath();
+        game.director.announcer.play("cuddlytoy", "HOST: Oh no! There goes the cuddly toy!");
+    }
+}
+
+class BearRefuse extends EnvironmentRubble {
+    BearRefuse(num x, num y) : super(x, y, 256, 256, 100.0, 0.0) {
+        this.tileset = TileSet.tilesets["bear"];
+        getTexture("assets/sprites/bear.png").then((THREE.Texture t) { this.texture = t; });
+
+        this.filth = 100.0;
+        this.setMaxHealth(500);
+        this.pos.z = 5.5;
+    }
+
+    @override
+    String getFrame() => "bear_3";
+
+    @override
+    void updateGraphics(num dt) {
+        super.updateGraphics(dt);
+        if (this.model != null) {
+            this.model.position.z = 5.5;
+        }
+    }
+
 }

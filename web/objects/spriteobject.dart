@@ -35,7 +35,7 @@ class SpriteObject extends MoverObject2D {
 				"opacity": new THREE.ShaderUniform<double>(value: 0.6),
 			};
 
-			//mat.side = THREE.DoubleSide;
+			mat.side = THREE.DoubleSide;
 
 			for (String name in this.uniforms.keys) {
 				THREE.setUniform(mat, name, this.uniforms[name]);

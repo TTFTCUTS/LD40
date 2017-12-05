@@ -2,6 +2,7 @@ import "package:GameLib2/GameLib2.dart";
 
 export "autorifle.dart";
 export "enemyguns.dart";
+export "mop.dart";
 export "rocketlauncher.dart";
 
 class Weapon {
@@ -58,9 +59,7 @@ class Weapon {
         }
     }
 
-    void shoot() {
-
-    }
+    void shoot() {}
 
     void onReload() {
 

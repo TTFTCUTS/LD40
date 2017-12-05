@@ -35,7 +35,7 @@ class RocketLauncher extends Weapon {
         new Rocket(origin.x, origin.y, true)..register(holder.game)
             ..move(holder.getHeading().normalize(), 750.0);
 
-        Audio.play("boydhurt1", "effects", pitchVar: 0.075);
+        Audio.play("ROCKETLAUNCH", "effects", pitchVar: 0.075);
     }
 }
 
@@ -91,14 +91,14 @@ class Rocket extends Projectile with Trail {
 }
 
 class RocketExplosion extends ArenaParticle with Spawner {
-    static double radius = 80.0;
+    static double radius = 110.0;
     static THREE.Vector3 grabbox = new THREE.Vector3.all(radius);
     bool friendly;
 
     double damage;
     double walldamage;
 
-    RocketExplosion(num x, num y, bool this.friendly, double this.damage, double this.walldamage) : super(x, y, 128, 128, 0.35, 0.0, 1, "explosion", "objects", "assets/sprites/objects.png") {
+    RocketExplosion(num x, num y, bool this.friendly, double this.damage, double this.walldamage) : super(x, y, 128, 128, 0.16, 0.0, 4, "explosion", "objects", "assets/sprites/objects.png") {
         this.pos.z = 10.0;
     }
 
@@ -110,7 +110,7 @@ class RocketExplosion extends ArenaParticle with Spawner {
 
     @override
     void spawn() {
-        Audio.play("boydhurt1", "effects", pitchVar: 0.075);
+        Audio.play("EXPLOSION", "loudeffects", pitchVar: 0.01);
 
         for (int i=0; i<10; i++) {
             new SmokeTrailer(this.pos.x, this.pos.y, 0.1, 0.025)..randomMotion(1000.0, 2000.0)..register(game);

@@ -4,6 +4,7 @@ abstract class Tiles {
     static void init() {
 
         new TileSet("arena", 512, 512)
+            ..fixedTile("void", 11, 7, 32)
 
             // base floor
             ..fixedTile("base_0", 0, 0, 32)
@@ -16,6 +17,8 @@ abstract class Tiles {
             ..fixedTile("base_7", 3, 1, 32)
 
             // wall
+            ..fixedTileNumRange("wall_", 1,4, 11, 6, 32)
+
             ..fixedTile("wall_t_1", 2, 6, 32)
             ..fixedTile("wall_t_2", 3, 6, 32)
             ..fixedTile("wall_t_3", 2, 7, 32)
@@ -72,6 +75,8 @@ abstract class Tiles {
             ..fixedTile("innerwall_lr_1", 7, 8, 32)
             ..fixedTile("innerwall_lr_2", 7, 9, 32)
             ..fixedTile("innerwall_lr_3", 8, 9, 32)
+
+            ..fixedTile("blocker", 10, 6, 32)
 
             // breakable walls
             ..fixedTile("breakwall_1", 0, 2, 32)
@@ -139,6 +144,7 @@ abstract class Tiles {
         new TileTypeConnected(255, "wall", variants: <String>["1", "2", "3", "4"], connectTo: <String>["void"])..solid=true;
         new TileTypeConnected(200, "innerwall", variants: <String>["1", "2", "3"], track: true)..solid=true;
         new TileType(180, "breakwall", <String>["1", "2", "3", "4"])..solid=true;
+        new TileType(190, "blocker")..solid=true;
 
 
         new TileSet("projectiles", 256,256)
@@ -164,11 +170,15 @@ abstract class Tiles {
         new TileSet("objects", 512,512)
             ..addTile("car", 0, 0, 256, 128)
             ..addTile("car_refuse", 0, 128, 256, 128)
-            ..addTile("car", 0, 0, 256, 128)
-            ..addTile("car_refuse", 0, 128, 256, 128)
+            ..addTile("boat", 256, 0, 256, 128)
+            ..addTile("boat_refuse", 256, 128, 256, 128)
             ..addTile("barrel", 192, 256, 64, 64)
             ..addTile("barrel_refuse", 128, 256, 64, 64)
-            ..addTile("explosion", 0, 384, 128,128)
+
+            ..addTile("explosion_1", 0, 384, 128,128)
+            ..addTile("explosion_2", 128, 384, 128,128)
+            ..addTile("explosion_3", 256, 384, 128,128)
+            ..addTile("explosion_4", 384, 384, 128,128)
         ;
 
         new TileSet("dude", 256,256)
@@ -196,5 +206,10 @@ abstract class Tiles {
             ..fixedTile("blood_small_4", 3, 8, 32)
         ;
 
+        new TileSet("bear", 512, 512)
+            ..fixedTile("bear_1", 0,0, 256)
+            ..fixedTile("bear_2", 1,0, 256)
+            ..fixedTile("bear_3", 0,1, 256)
+        ;
     }
 }

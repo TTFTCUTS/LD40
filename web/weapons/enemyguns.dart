@@ -15,7 +15,7 @@ class EnemyGun extends Weapon {
 
     int damage = 2;
     double velocity = 450.0;
-    String sound = "boydhurt1";
+    String sound = "GUNFIRE";
 
     EnemyGun() : super(){
         this.sprite = "handgun";
@@ -99,5 +99,36 @@ class FattyGun extends EnemyGun {
         this.spread = PI / 6;
 
         this.sprite = "minigun";
+    }
+}
+
+class CommandoGun extends EnemyGun {
+    CommandoGun() {
+        this.fireRate = 0.6;
+        this.damage = 3;
+        this.velocity = 250.0;
+        this.ammo = 2;
+        this.maxAmmo = 2;
+        this.reloadTime = 2.5;
+        this.spread = PI / 4;
+
+        this.sprite = "shotgun";
+        this.sound = "SHOTGUNFIRE";
+    }
+
+    @override
+    void shoot() {
+        THREE.Vector2 offset = holder.getHeading().normalize().multiplyScalar(holder.size * 0.25);
+
+        THREE.Vector2 origin = THREE.v3_xy(holder.pos).add(offset);
+
+        for (int i=0; i<8; i++) {
+            this.spawnProjectile(origin.x, origin.y)
+                ..register(holder.game)
+                ..angle = holder.angle
+                ..move(holder.getHeading().normalize().rotateAround(new THREE.Vector2.zero(), (EnemyGun.rand.nextDouble() - 0.5) * spread), velocity);
+        }
+
+        Audio.play(sound, "effects", pitchVar: 0.075);
     }
 }

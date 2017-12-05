@@ -62,7 +62,9 @@ class WallObject extends Actor {
 
     @override
     void onDeath() {
+        super.onDeath();
         new WallRubble(this)..register(game);
+        game.director.score += 500;
     }
 }
 
@@ -79,6 +81,9 @@ class WallRubble extends Refuse {
         this.hp = wall.maxhealth;
         this.cellx = wall.cellx;
         this.celly = wall.celly;
+
+        this.filth = 20.0;
+        this.setMaxHealth(30);
     }
 
     @override
@@ -89,6 +94,28 @@ class WallRubble extends Refuse {
     @override
     void cleanUp() {
         super.cleanUp();
-        new WallObject(cellx, celly, null, null, hp, tilekey);
+        //new WallObject(cellx, celly, null, null, hp, tilekey);
+    }
+}
+
+class Blockerwall extends WallObject {
+    static THREE.Vector3 _nohurtTint = new THREE.Vector3(0.0, 0.0, 0.0);
+
+    Blockerwall(int cellx, int celly, WorldGrid grid) : super(cellx, celly, TileType.typesByName["blocker"], grid) {
+        this.setMaxHealth(1000000);
+        this.hurtTint = _nohurtTint;
+    }
+
+    @override
+    void update(num dt) {
+        super.update(dt);
+        if (!this.destroyed) {
+            this.setMaxHealth(1000000);
+        }
+    }
+
+    @override
+    void onDeath() {
+        this.destroy();
     }
 }

@@ -35,5 +35,6 @@ abstract class Bleeder {
         this.nextbloodtick = -10.0;
         this.bloodbank += maxhealth ~/2;
         this.updateBlood(1.0);
+        Audio.play("DEATH", "loudeffects", pitchVar: 0.075);
     }
 }
